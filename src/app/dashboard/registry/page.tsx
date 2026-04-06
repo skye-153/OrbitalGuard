@@ -25,24 +25,45 @@ import {
   Globe2,
   MoreVertical,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Info,
+  History,
+  Activity
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import { Label } from '@/components/ui/label';
 
 // Mock data
 const INITIAL_DATA = [
-  { id: '45621', name: 'STARLINK-1254', type: 'Satellite', owner: 'SpaceX', orbit: 'LEO', launch: '2022-03-12', status: 'Active' },
-  { id: '23561', name: 'COSMOS-2251 DEB', type: 'Debris', owner: 'Russia', orbit: 'LEO', launch: '1993-06-16', status: 'Inert' },
-  { id: '25412', name: 'IRIDIUM-32', type: 'Satellite', owner: 'Iridium', orbit: 'LEO', launch: '1997-09-14', status: 'Active' },
-  { id: '55412', name: 'ASTRA-2E', type: 'Satellite', owner: 'SES', orbit: 'GEO', launch: '2013-09-29', status: 'Active' },
-  { id: '12412', name: 'VANGUARD 1', type: 'Satellite', owner: 'USA', orbit: 'MEO', launch: '1958-03-17', status: 'Inert' },
-  { id: '88412', name: 'FENGYUN-1C DEB', type: 'Debris', owner: 'China', orbit: 'LEO', launch: '1999-05-10', status: 'Inert' },
-  { id: '33412', name: 'GOES-16', type: 'Satellite', owner: 'NOAA', orbit: 'GEO', launch: '2016-11-19', status: 'Active' },
-  { id: '44521', name: 'ISS (ZARYA)', type: 'Station', owner: 'Multinational', orbit: 'LEO', launch: '1998-11-20', status: 'Active' },
+  { id: '45621', name: 'STARLINK-1254', type: 'Satellite', owner: 'SpaceX', orbit: 'LEO', launch: '2022-03-12', status: 'Active', inclination: '53.2°', altitude: '550km' },
+  { id: '23561', name: 'COSMOS-2251 DEB', type: 'Debris', owner: 'Russia', orbit: 'LEO', launch: '1993-06-16', status: 'Inert', inclination: '86.4°', altitude: '780km' },
+  { id: '25412', name: 'IRIDIUM-32', type: 'Satellite', owner: 'Iridium', orbit: 'LEO', launch: '1997-09-14', status: 'Active', inclination: '86.4°', altitude: '780km' },
+  { id: '55412', name: 'ASTRA-2E', type: 'Satellite', owner: 'SES', orbit: 'GEO', launch: '2013-09-29', status: 'Active', inclination: '0.1°', altitude: '35,786km' },
+  { id: '12412', name: 'VANGUARD 1', type: 'Satellite', owner: 'USA', orbit: 'MEO', launch: '1958-03-17', status: 'Inert', inclination: '34.2°', altitude: '2,500km' },
+  { id: '88412', name: 'FENGYUN-1C DEB', type: 'Debris', owner: 'China', orbit: 'LEO', launch: '1999-05-10', status: 'Inert', inclination: '98.6°', altitude: '860km' },
+  { id: '33412', name: 'GOES-16', type: 'Satellite', owner: 'NOAA', orbit: 'GEO', launch: '2016-11-19', status: 'Active', inclination: '0.0°', altitude: '35,786km' },
+  { id: '44521', name: 'ISS (ZARYA)', type: 'Station', owner: 'Multinational', orbit: 'LEO', launch: '1998-11-20', status: 'Active', inclination: '51.6°', altitude: '420km' },
 ];
 
 export default function RegistryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
+  const [selectedObject, setSelectedObject] = useState<any>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   const filteredData = INITIAL_DATA.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -73,9 +94,37 @@ export default function RegistryPage() {
           <Button variant="outline" className="bg-white/5 border-white/10 gap-2">
             <Download className="w-4 h-4" /> Export CSV
           </Button>
-          <Button className="bg-primary hover:bg-primary/90 gap-2">
-            <Plus className="w-4 h-4" /> Add Object
-          </Button>
+          
+          <Dialog open={isAdding} onOpenChange={setIsAdding}>
+            <DialogTrigger asChild>
+              <Button className="bg-primary hover:bg-primary/90 gap-2">
+                <Plus className="w-4 h-4" /> Add Object
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-card border-white/10">
+              <DialogHeader>
+                <DialogTitle>Register New Orbital Object</DialogTitle>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">Name</Label>
+                  <Input id="name" placeholder="e.g. STARLINK-9999" className="col-span-3 bg-white/5 border-white/10" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="norad" className="text-right">NORAD ID</Label>
+                  <Input id="norad" placeholder="e.g. 52412" className="col-span-3 bg-white/5 border-white/10" />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="type" className="text-right">Type</Label>
+                  <Input id="type" placeholder="Satellite" className="col-span-3 bg-white/5 border-white/10" />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
+                <Button onClick={() => setIsAdding(false)}>Register Object</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -122,7 +171,11 @@ export default function RegistryPage() {
             </TableHeader>
             <TableBody>
               {filteredData.map((row) => (
-                <TableRow key={row.id} className="border-white/5 hover:bg-white/5 cursor-pointer">
+                <TableRow 
+                  key={row.id} 
+                  className="border-white/5 hover:bg-white/5 cursor-pointer"
+                  onClick={() => setSelectedObject(row)}
+                >
                   <TableCell className="font-mono text-xs text-muted-foreground">{row.id}</TableCell>
                   <TableCell className="font-bold">{row.name}</TableCell>
                   <TableCell>
@@ -143,7 +196,7 @@ export default function RegistryPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white/10" onClick={(e) => e.stopPropagation()}>
                       <MoreVertical className="w-4 h-4" />
                     </Button>
                   </TableCell>
@@ -153,7 +206,7 @@ export default function RegistryPage() {
           </Table>
         </CardContent>
         <div className="p-6 border-t border-white/5 flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Showing 8 of 24,892 objects</span>
+          <span className="text-sm text-muted-foreground">Showing {filteredData.length} of 24,892 objects</span>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="icon" className="h-8 w-8 bg-white/5 border-white/10 disabled:opacity-30">
               <ChevronLeft className="w-4 h-4" />
@@ -167,6 +220,73 @@ export default function RegistryPage() {
           </div>
         </div>
       </Card>
+
+      {/* Object Detail Sheet */}
+      <Sheet open={!!selectedObject} onOpenChange={() => setSelectedObject(null)}>
+        <SheetContent className="bg-card border-l-white/10 w-full sm:max-w-md">
+          {selectedObject && (
+            <>
+              <SheetHeader>
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <Satellite className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <SheetTitle className="text-xl font-bold">{selectedObject.name}</SheetTitle>
+                    <SheetDescription>NORAD ID: {selectedObject.id}</SheetDescription>
+                  </div>
+                </div>
+              </SheetHeader>
+              
+              <div className="space-y-6 mt-8">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Status</p>
+                    <p className="font-bold text-green-500 mt-1">{selectedObject.status}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-white/5 border border-white/5">
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Orbit</p>
+                    <p className="font-bold mt-1">{selectedObject.orbit}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold flex items-center gap-2">
+                    <Info className="w-4 h-4 text-primary" /> Orbital Parameters
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm p-3 rounded-lg bg-white/5">
+                      <span className="text-muted-foreground">Inclination</span>
+                      <span className="font-mono">{selectedObject.inclination}</span>
+                    </div>
+                    <div className="flex justify-between text-sm p-3 rounded-lg bg-white/5">
+                      <span className="text-muted-foreground">Mean Altitude</span>
+                      <span className="font-mono">{selectedObject.altitude}</span>
+                    </div>
+                    <div className="flex justify-between text-sm p-3 rounded-lg bg-white/5">
+                      <span className="text-muted-foreground">Launch Date</span>
+                      <span className="font-mono">{selectedObject.launch}</span>
+                    </div>
+                    <div className="flex justify-between text-sm p-3 rounded-lg bg-white/5">
+                      <span className="text-muted-foreground">Owner / Agency</span>
+                      <span className="font-mono">{selectedObject.owner}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-white/10 space-y-3">
+                  <Button className="w-full gap-2">
+                    <Activity className="w-4 h-4" /> Live Telemetry
+                  </Button>
+                  <Button variant="outline" className="w-full gap-2 bg-white/5">
+                    <History className="w-4 h-4" /> Orbit History
+                  </Button>
+                </div>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
