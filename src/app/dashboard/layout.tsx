@@ -8,26 +8,13 @@ import {
   LayoutDashboard, 
   Database, 
   AlertTriangle, 
-  Settings, 
   FileText, 
   ChevronLeft, 
   ChevronRight,
-  Shield,
-  Menu,
-  LogOut,
-  User
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Control Center', href: '/dashboard' },
@@ -106,34 +93,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {navItems.find(item => item.href === pathname)?.label || 'Dashboard'}
             </h2>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex flex-col items-end mr-2">
-              <span className="text-sm font-medium">Dr. Elena Vance</span>
-              <span className="text-xs text-muted-foreground">Chief Orbital Analyst</span>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Avatar className="cursor-pointer border-2 border-primary/20 hover:border-primary transition-colors">
-                  <AvatarImage src="https://picsum.photos/seed/user1/100/100" />
-                  <AvatarFallback>EV</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-card border-white/10 text-white">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-white/5" />
-                <DropdownMenuItem className="focus:bg-white/5 cursor-pointer">
-                  <User className="mr-2 h-4 w-4" /> Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem className="focus:bg-white/5 cursor-pointer">
-                  <Settings className="mr-2 h-4 w-4" /> Settings
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-white/5" />
-                <DropdownMenuItem className="focus:bg-white/5 text-destructive cursor-pointer">
-                  <LogOut className="mr-2 h-4 w-4" /> Log out
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          {/* Account/Profile section removed */}
         </header>
 
         <main className="flex-1 overflow-auto p-8 custom-scrollbar">
