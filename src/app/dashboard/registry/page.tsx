@@ -47,6 +47,11 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 
@@ -408,4 +413,3 @@ export default function RegistryPage() {
     </div>
   );
 }
-
