@@ -17,6 +17,10 @@ import {
 
 export default function Dashboard() {
   const [activeObjects, setActiveObjects] = useState(0);
+  const [dots, setDots] = useState<{
+    tracking: { top: string; left: string; delay: string }[];
+    debris: { top: string; left: string }[];
+  }>({ tracking: [], debris: [] });
 
   useEffect(() => {
     // Simple counter animation
@@ -26,6 +30,19 @@ export default function Dashboard() {
         return prev + 123;
       });
     }, 20);
+
+    // Generate random dots only on client to avoid hydration mismatch
+    const tracking = [...Array(20)].map(() => ({
+      top: `${20 + Math.random() * 60}%`,
+      left: `${20 + Math.random() * 60}%`,
+      delay: `${Math.random() * 2}s`
+    }));
+    const debris = [...Array(15)].map(() => ({
+      top: `${10 + Math.random() * 80}%`,
+      left: `${10 + Math.random() * 80}%`,
+    }));
+    setDots({ tracking, debris });
+
     return () => clearInterval(interval);
   }, []);
 
@@ -86,26 +103,26 @@ export default function Dashboard() {
               <div className="absolute inset-0 m-auto w-[70%] h-[70%] orbital-ring rotate-[45deg]" />
               
               {/* Tracking dots */}
-              {[...Array(20)].map((_, i) => (
+              {dots.tracking.map((dot, i) => (
                 <div 
                   key={i} 
                   className="absolute w-1 h-1 bg-primary rounded-full animate-ping"
                   style={{
-                    top: `${20 + Math.random() * 60}%`,
-                    left: `${20 + Math.random() * 60}%`,
-                    animationDelay: `${Math.random() * 2}s`
+                    top: dot.top,
+                    left: dot.left,
+                    animationDelay: dot.delay
                   }}
                 />
               ))}
               
               {/* Debris dots */}
-              {[...Array(15)].map((_, i) => (
+              {dots.debris.map((dot, i) => (
                 <div 
                   key={i} 
                   className="absolute w-1 h-1 bg-accent rounded-full opacity-60"
                   style={{
-                    top: `${10 + Math.random() * 80}%`,
-                    left: `${10 + Math.random() * 80}%`,
+                    top: dot.top,
+                    left: dot.left,
                   }}
                 />
               ))}
