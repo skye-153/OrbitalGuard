@@ -47,7 +47,6 @@ import {
 } from "@/components/ui/sheet";
 import { Label } from '@/components/ui/label';
 
-// Mock data
 const INITIAL_DATA = [
   { id: '45621', name: 'STARLINK-1254', type: 'Satellite', owner: 'SpaceX', orbit: 'LEO', launch: '2022-03-12', status: 'Active', inclination: '53.2°', altitude: '550km' },
   { id: '23561', name: 'COSMOS-2251 DEB', type: 'Debris', owner: 'Russia', orbit: 'LEO', launch: '1993-06-16', status: 'Inert', inclination: '86.4°', altitude: '780km' },
@@ -64,8 +63,35 @@ export default function RegistryPage() {
   const [filterType, setFilterType] = useState('All');
   const [selectedObject, setSelectedObject] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [registryData, setRegistryData] = useState(INITIAL_DATA);
 
-  const filteredData = INITIAL_DATA.filter(item => {
+  // Form State
+  const [newObjectName, setNewObjectName] = useState('');
+  const [newObjectNorad, setNewObjectNorad] = useState('');
+  const [newObjectType, setNewObjectType] = useState('Satellite');
+
+  const handleAddObject = () => {
+    if (!newObjectName || !newObjectNorad) return;
+
+    const newObj = {
+      id: newObjectNorad,
+      name: newObjectName.toUpperCase(),
+      type: newObjectType,
+      owner: 'System Registered',
+      orbit: 'LEO',
+      launch: new Date().toISOString().split('T')[0],
+      status: 'Active',
+      inclination: 'TBD',
+      altitude: 'TBD'
+    };
+
+    setRegistryData([newObj, ...registryData]);
+    setIsAdding(false);
+    setNewObjectName('');
+    setNewObjectNorad('');
+  };
+
+  const filteredData = registryData.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           item.id.includes(searchTerm);
     const matchesType = filterType === 'All' || item.type === filterType;
@@ -108,20 +134,41 @@ export default function RegistryPage() {
               <div className="grid gap-4 py-4">
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="name" className="text-right">Name</Label>
-                  <Input id="name" placeholder="e.g. STARLINK-9999" className="col-span-3 bg-white/5 border-white/10" />
+                  <Input 
+                    id="name" 
+                    placeholder="e.g. STARLINK-9999" 
+                    className="col-span-3 bg-white/5 border-white/10"
+                    value={newObjectName}
+                    onChange={(e) => setNewObjectName(e.target.value)}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="norad" className="text-right">NORAD ID</Label>
-                  <Input id="norad" placeholder="e.g. 52412" className="col-span-3 bg-white/5 border-white/10" />
+                  <Input 
+                    id="norad" 
+                    placeholder="e.g. 52412" 
+                    className="col-span-3 bg-white/5 border-white/10"
+                    value={newObjectNorad}
+                    onChange={(e) => setNewObjectNorad(e.target.value)}
+                  />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">
                   <Label htmlFor="type" className="text-right">Type</Label>
-                  <Input id="type" placeholder="Satellite" className="col-span-3 bg-white/5 border-white/10" />
+                  <select 
+                    id="type" 
+                    className="col-span-3 h-10 px-3 rounded-md bg-white/5 border-white/10 text-sm focus:outline-none"
+                    value={newObjectType}
+                    onChange={(e) => setNewObjectType(e.target.value)}
+                  >
+                    <option value="Satellite" className="bg-card">Satellite</option>
+                    <option value="Debris" className="bg-card">Debris</option>
+                    <option value="Station" className="bg-card">Station</option>
+                  </select>
                 </div>
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsAdding(false)}>Cancel</Button>
-                <Button onClick={() => setIsAdding(false)}>Register Object</Button>
+                <Button onClick={handleAddObject}>Register Object</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -131,9 +178,9 @@ export default function RegistryPage() {
       {/* Quick Filter Tiles */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: 'All Objects', count: '24,892', icon: Globe2, filter: 'All' },
-          { label: 'Satellites', count: '8,421', icon: Satellite, filter: 'Satellite' },
-          { label: 'Debris', count: '16,471', icon: Box, filter: 'Debris' },
+          { label: 'All Objects', count: registryData.length, icon: Globe2, filter: 'All' },
+          { label: 'Satellites', count: registryData.filter(d => d.type === 'Satellite').length, icon: Satellite, filter: 'Satellite' },
+          { label: 'Debris', count: registryData.filter(d => d.type === 'Debris').length, icon: Box, filter: 'Debris' },
           { label: 'Critical', count: '12', icon: Filter, filter: 'Critical' },
         ].map((tile, i) => (
           <button 
@@ -206,14 +253,12 @@ export default function RegistryPage() {
           </Table>
         </CardContent>
         <div className="p-6 border-t border-white/5 flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">Showing {filteredData.length} of 24,892 objects</span>
+          <span className="text-sm text-muted-foreground">Showing {filteredData.length} objects</span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="icon" className="h-8 w-8 bg-white/5 border-white/10 disabled:opacity-30">
+            <Button variant="outline" size="icon" className="h-8 w-8 bg-white/5 border-white/10">
               <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button variant="outline" size="sm" className="h-8 w-8 bg-primary text-white border-none">1</Button>
-            <Button variant="outline" size="sm" className="h-8 w-8 bg-white/5 border-white/10">2</Button>
-            <Button variant="outline" size="sm" className="h-8 w-8 bg-white/5 border-white/10">3</Button>
             <Button variant="outline" size="icon" className="h-8 w-8 bg-white/5 border-white/10">
               <ChevronRight className="w-4 h-4" />
             </Button>

@@ -25,41 +25,35 @@ import {
 } from "@/components/ui/popover";
 
 export default function Dashboard() {
-  const [activeObjects, setActiveObjects] = useState(0);
   const [viewMode, setViewMode] = useState<'2D' | '3D'>('2D');
   const [filterType, setFilterType] = useState<'ALL' | 'SATELLITE' | 'DEBRIS'>('ALL');
   const [selectedDot, setSelectedDot] = useState<any>(null);
   
   const [dots, setDots] = useState<{
-    tracking: { top: string; left: string; delay: string; id: string; name: string; type: string }[];
-    debris: { top: string; left: string; id: string; name: string }[];
+    tracking: { top: string; left: string; delay: string; id: string; name: string; type: string; altitude: number }[];
+    debris: { top: string; left: string; id: string; name: string; type: string; altitude: number }[];
   }>({ tracking: [], debris: [] });
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveObjects(prev => {
-        if (prev >= 24892) return 24892;
-        return prev + 123;
-      });
-    }, 20);
-
+    // Generate random dots once on mount to avoid hydration mismatch
     const tracking = [...Array(20)].map((_, i) => ({
       id: `SAT-${1000 + i}`,
       name: `STARLINK-${1200 + i}`,
       type: 'Satellite',
       top: `${20 + Math.random() * 60}%`,
       left: `${20 + Math.random() * 60}%`,
-      delay: `${Math.random() * 2}s`
+      delay: `${Math.random() * 2}s`,
+      altitude: 40 + Math.random() * 60 // Simulated height for 3D view
     }));
     const debris = [...Array(15)].map((_, i) => ({
       id: `DEB-${5000 + i}`,
       name: `DEBRIS-200${i}-A`,
+      type: 'Debris',
       top: `${10 + Math.random() * 80}%`,
       left: `${10 + Math.random() * 80}%`,
+      altitude: 10 + Math.random() * 30
     }));
     setDots({ tracking, debris });
-
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -151,6 +145,7 @@ export default function Dashboard() {
                 "relative w-[340px] h-[340px] md:w-[450px] md:h-[450px] transition-all duration-1000",
                 viewMode === '3D' ? "perspective-[1000px] rotate-x-[45deg] rotate-z-[20deg]" : ""
               )}
+              style={{ transformStyle: 'preserve-3d' }}
             >
               {/* Earth */}
               <div className="absolute inset-0 m-auto w-40 h-40 md:w-56 md:h-56 bg-gradient-to-br from-blue-600 via-blue-900 to-black rounded-full shadow-[0_0_80px_rgba(37,99,235,0.4)] animate-pulse-slow">
@@ -163,36 +158,38 @@ export default function Dashboard() {
               <div className="absolute inset-0 m-auto w-[70%] h-[70%] orbital-ring rotate-[45deg]" />
               
               {/* Tracking dots */}
-              {(filterType === 'ALL' || filterType === 'SATELLITE') && dots.tracking.map((dot, i) => (
+              {(filterType === 'ALL' || filterType === 'SATELLITE') && dots.tracking.map((dot) => (
                 <div 
                   key={dot.id} 
                   className="absolute w-1.5 h-1.5 bg-primary rounded-full animate-ping cursor-pointer hover:scale-150 transition-transform"
                   style={{
                     top: dot.top,
                     left: dot.left,
-                    animationDelay: dot.delay
+                    animationDelay: dot.delay,
+                    transform: viewMode === '3D' ? `translateZ(${dot.altitude}px)` : 'none'
                   }}
                   onClick={() => setSelectedDot(dot)}
                 />
               ))}
               
               {/* Debris dots */}
-              {(filterType === 'ALL' || filterType === 'DEBRIS') && dots.debris.map((dot, i) => (
+              {(filterType === 'ALL' || filterType === 'DEBRIS') && dots.debris.map((dot) => (
                 <div 
                   key={dot.id} 
                   className="absolute w-1 h-1 bg-accent rounded-full opacity-60 cursor-pointer hover:scale-150 transition-transform"
                   style={{
                     top: dot.top,
                     left: dot.left,
+                    transform: viewMode === '3D' ? `translateZ(${dot.altitude}px)` : 'none'
                   }}
-                  onClick={() => setSelectedDot({ ...dot, type: 'Debris' })}
+                  onClick={() => setSelectedDot(dot)}
                 />
               ))}
             </div>
             
             {/* Selection Card */}
             {selectedDot && (
-              <div className="absolute bottom-6 left-6 p-4 glass-panel rounded-lg max-w-[200px] animate-in slide-in-from-bottom-4">
+              <div className="absolute bottom-6 left-6 p-4 glass-panel rounded-lg max-w-[200px] animate-in slide-in-from-bottom-4 shadow-2xl z-20">
                 <div className="flex justify-between items-start mb-2">
                   <div className="flex items-center gap-2">
                     <div className={cn("w-2 h-2 rounded-full animate-pulse", selectedDot.type === 'Debris' ? 'bg-accent' : 'bg-primary')} />
