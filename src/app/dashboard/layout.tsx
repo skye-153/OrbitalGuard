@@ -34,7 +34,6 @@ const navItems = [
   { icon: Database, label: 'Object Registry', href: '/dashboard/registry' },
   { icon: AlertTriangle, label: 'Collision Alerts', href: '/dashboard/alerts' },
   { icon: FileText, label: 'System Report', href: '/dashboard/report' },
-  { icon: Settings, label: 'Admin Panel', href: '/dashboard/admin' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

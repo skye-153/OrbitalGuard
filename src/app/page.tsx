@@ -16,13 +16,10 @@ export default function Home() {
         </div>
         <nav className="hidden md:flex items-center gap-8">
           <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">Features</Link>
-          <Link href="#registry" className="text-sm font-medium hover:text-primary transition-colors">Registry</Link>
+          <Link href="/dashboard/registry" className="text-sm font-medium hover:text-primary transition-colors">Registry</Link>
           <Link href="/dashboard" className="text-sm font-medium hover:text-primary transition-colors">Dashboard</Link>
         </nav>
         <div className="flex items-center gap-4">
-          <Button variant="ghost" asChild>
-            <Link href="/login">Sign In</Link>
-          </Button>
           <Button asChild className="bg-accent hover:bg-accent/90">
             <Link href="/dashboard">Launch Console</Link>
           </Button>
@@ -102,8 +99,8 @@ export default function Home() {
           </div>
           <p className="text-sm text-muted-foreground">© 2024 Orbital Guard Systems. All orbital rights reserved.</p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-sm text-muted-foreground hover:text-white transition-colors">Privacy Policy</Link>
-            <Link href="/terms" className="text-sm text-muted-foreground hover:text-white transition-colors">Terms of Service</Link>
+            <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">Privacy Policy</Link>
+            <Link href="#" className="text-sm text-muted-foreground hover:text-white transition-colors">Terms of Service</Link>
           </div>
         </div>
       </footer>
