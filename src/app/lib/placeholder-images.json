@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-space",
+      "description": "Earth from orbit with satellites",
+      "imageUrl": "https://picsum.photos/seed/orbital1/1200/800",
+      "imageHint": "space satellite"
+    },
+    {
+      "id": "satellite-detail",
+      "description": "Modern communication satellite in orbit",
+      "imageUrl": "https://picsum.photos/seed/orbital2/800/600",
+      "imageHint": "satellite technology"
+    }
+  ]
+}
