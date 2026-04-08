@@ -1,15 +1,44 @@
 
 "use client";
 
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { AlertTriangle, Info, Bell, ShieldAlert, Radio, ArrowRight, Zap, RefreshCcw } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Progress } from "@/components/ui/progress";
 
 export default function AlertsPage() {
+  const [analyzingAlert, setAnalyzingAlert] = useState<string | null>(null);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+
+  useEffect(() => {
+    if (analyzingAlert) {
+      setAnalysisProgress(0);
+      const timer = setInterval(() => {
+        setAnalysisProgress((oldProgress) => {
+          if (oldProgress >= 100) {
+            clearInterval(timer);
+            return 100;
+          }
+          let diff = Math.random() * 20;
+          return Math.min(oldProgress + diff, 100);
+        });
+      }, 500);
+      return () => clearInterval(timer);
+    }
+  }, [analyzingAlert]);
+
   const handleAnalyze = (title: string) => {
+    setAnalyzingAlert(title);
     toast({
       title: "Analysis Initialized",
       description: `Calculating conjunction probability for: ${title}`,
@@ -183,6 +212,62 @@ export default function AlertsPage() {
           ))}
         </div>
       </div>
+
+      {/* Analysis Dialog */}
+      <Dialog open={!!analyzingAlert} onOpenChange={(open) => !open && setAnalyzingAlert(null)}>
+        <DialogContent className="bg-card border-white/10 sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold flex items-center gap-2">
+              <Zap className="w-5 h-5 text-primary animate-pulse" /> Telemetry Analysis Protocol
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-6 space-y-8">
+            <div>
+              <p className="text-xs text-muted-foreground font-mono mb-2">TARGET: {analyzingAlert}</p>
+              {analysisProgress < 100 ? (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-bold text-primary">
+                    <span>PROCESSING RADAR PACKETS...</span>
+                    <span>{Math.round(analysisProgress)}%</span>
+                  </div>
+                  <Progress value={analysisProgress} className="h-2" />
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  <div className="flex justify-between text-xs font-bold text-green-500">
+                    <span>ANALYSIS COMPLETE</span>
+                    <span>100%</span>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 shadow-inner">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Predicted Miss Distance</p>
+                      <p className="font-mono text-xl font-bold mt-1 text-white">42.8 m <span className="text-destructive text-sm ml-2">↓ High Risk</span></p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 shadow-inner">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Required Avoidance Delta-V</p>
+                      <p className="font-mono text-xl font-bold mt-1 text-white">0.05 m/s</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 shadow-inner">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Time to Closest Approach</p>
+                      <p className="font-mono text-xl font-bold mt-1 text-white">00:12:44</p>
+                    </div>
+                    <div className="p-4 rounded-xl bg-white/5 border border-white/5 shadow-inner">
+                      <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Confidence Level</p>
+                      <p className="font-mono text-xl font-bold mt-1 text-white">99.8%</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-xl">
+                    <h4 className="font-bold text-destructive text-sm mb-1">Maneuver Recommended</h4>
+                    <p className="text-xs text-muted-foreground">Initiate radial burn sequence to achieve safe minimum separation distance of 1.5km.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

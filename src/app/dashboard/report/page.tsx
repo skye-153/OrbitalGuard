@@ -1,9 +1,12 @@
 
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Download, FileText, Globe, Shield, Database, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/hooks/use-toast';
 
 export default function ReportPage() {
   return (
@@ -13,7 +16,13 @@ export default function ReportPage() {
           <h1 className="text-4xl font-bold font-headline mb-2">System Architecture Report</h1>
           <p className="text-muted-foreground">Orbital Guard Technical Documentation v1.0.4</p>
         </div>
-        <Button className="bg-accent hover:bg-accent/90">
+        <Button 
+          className="bg-accent hover:bg-accent/90"
+          onClick={() => {
+            toast({ title: 'Generating PDF', description: 'Opening system print dialog...' });
+            setTimeout(() => window.print(), 500);
+          }}
+        >
           <Download className="mr-2 h-4 w-4" /> Download PDF
         </Button>
       </div>

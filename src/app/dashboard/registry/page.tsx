@@ -73,6 +73,7 @@ const INITIAL_DATA = [
 export default function RegistryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('All');
+  const [advancedStatusFilter, setAdvancedStatusFilter] = useState('All');
   const [selectedObject, setSelectedObject] = useState<any>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [registryData, setRegistryData] = useState(INITIAL_DATA);
@@ -81,6 +82,28 @@ export default function RegistryPage() {
   const [newObjectName, setNewObjectName] = useState('');
   const [newObjectNorad, setNewObjectNorad] = useState('');
   const [newObjectType, setNewObjectType] = useState('Satellite');
+
+  const handleExport = () => {
+    toast({ title: 'Export Initiated', description: 'Generating and downloading orbital CSV data...' });
+    
+    const headers = ['NORAD ID', 'Name', 'Type', 'Owner', 'Orbit', 'Launch', 'Status', 'Inclination', 'Altitude'];
+    const csvRows = [
+      headers.join(','),
+      ...filteredData.map(row => 
+        [row.id, `"${row.name}"`, row.type, `"${row.owner}"`, row.orbit, row.launch, row.status, `"${row.inclination}"`, `"${row.altitude}"`].join(',')
+      )
+    ];
+    const csvContent = csvRows.join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'orbital_registry_export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleAddObject = () => {
     if (!newObjectName || !newObjectNorad) {
@@ -129,9 +152,14 @@ export default function RegistryPage() {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                             item.id.includes(searchTerm);
       const matchesType = filterType === 'All' || item.type === filterType;
-      return matchesSearch && matchesType;
+      
+      let matchesAdvancedStatus = true;
+      if (advancedStatusFilter === 'Active') matchesAdvancedStatus = item.status === 'Active';
+      if (advancedStatusFilter === 'Inert') matchesAdvancedStatus = item.status === 'Inert';
+      
+      return matchesSearch && matchesType && matchesAdvancedStatus;
     });
-  }, [registryData, searchTerm, filterType]);
+  }, [registryData, searchTerm, filterType, advancedStatusFilter]);
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
@@ -157,16 +185,16 @@ export default function RegistryPage() {
               <div className="space-y-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Status Filter</p>
                 <div className="space-y-2">
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-xs">Only Active</Button>
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-xs">Only Inert</Button>
-                  <Button variant="ghost" size="sm" className="w-full justify-start text-xs">Launch Decades</Button>
+                  <Button variant="ghost" size="sm" className={cn("w-full justify-start text-xs", advancedStatusFilter === 'Active' && "bg-white/10")} onClick={() => setAdvancedStatusFilter(advancedStatusFilter === 'Active' ? 'All' : 'Active')}>Only Active</Button>
+                  <Button variant="ghost" size="sm" className={cn("w-full justify-start text-xs", advancedStatusFilter === 'Inert' && "bg-white/10")} onClick={() => setAdvancedStatusFilter(advancedStatusFilter === 'Inert' ? 'All' : 'Inert')}>Only Inert</Button>
+                  <Button variant="ghost" size="sm" className="w-full justify-start text-xs" onClick={() => toast({ title: 'Feature Unavailable', description: 'Decade filtering coming in v1.1.0' })}>Launch Decades</Button>
                 </div>
               </div>
             </PopoverContent>
           </Popover>
         </div>
         <div className="flex items-center gap-3 w-full lg:w-auto">
-          <Button variant="outline" className="flex-1 lg:flex-none bg-white/5 border-white/10 gap-2 h-11 rounded-xl" onClick={() => toast({ title: 'Export Initiated', description: 'Generating orbital CSV data...' })}>
+          <Button variant="outline" className="flex-1 lg:flex-none bg-white/5 border-white/10 gap-2 h-11 rounded-xl" onClick={handleExport}>
             <Download className="w-4 h-4" /> Export
           </Button>
           
